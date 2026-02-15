@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const readline = __importStar(require("readline-sync"));
-const gui_1 = require("./gui");
+const tui_1 = require("./tui");
 var GameState;
 (function (GameState) {
     GameState["Menu"] = "menu";
@@ -44,14 +44,58 @@ var GameState;
 })(GameState || (GameState = {}));
 class Game {
     constructor() {
-        this.gui = new gui_1.GUI;
+        this.tui = new tui_1.TUI;
         this.game_state = GameState.Menu;
     }
-    mainMenu() { }
+    /*
+    call appropriate methods based on your game state
+    */
+    checkGameState() {
+        console.log('');
+        // CLEAN: this can be tidied up to look not ugly
+        if (this.game_state == GameState.Menu)
+            this.tui.printMenu();
+        else if (this.game_state == GameState.Playing)
+            this.tui.printDeck();
+        else if (this.game_state == GameState.Win)
+            this.tui.printWin();
+        else if (this.game_state == GameState.Lost)
+            this.tui.printLost();
+        else
+            console.log("Invalid game state. You're not supposed to be here.");
+    }
+    mainMenu() {
+    }
     startGame() { }
     continueGame() { }
     closeGame() { }
+    /* used to debug only */
+    inputGameState(input) {
+        if (input === "m") {
+            this.game_state = GameState.Menu;
+            this.checkGameState();
+        }
+        else if (input === 'w') {
+            this.game_state = GameState.Win;
+            this.checkGameState();
+        }
+        else if (input === 'l') {
+            this.game_state = GameState.Lost;
+            this.checkGameState();
+        }
+        else if (input === 'q') {
+            console.log("");
+            this.tui.printQuit();
+        }
+        else
+            console.log("\nInvalid game state. You're not supposed to be here.\n");
+    }
 }
 const game = new Game();
-const game_state = readline.question("Choose a screen: (m)enu, (w)in, (l)ost \n");
-console.log("you chose:", game_state);
+// gameplay loop
+while (true) {
+    const game_state = readline.question("Choose a screen: (m)enu, (w)in, (l)ost, (q)uit\n");
+    game.inputGameState(game_state);
+    if (game_state == "q")
+        break;
+}

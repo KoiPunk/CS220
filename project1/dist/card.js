@@ -23,7 +23,7 @@ var Values;
     Values["Queen"] = "queen";
     Values["King"] = "king";
 })(Values || (Values = {}));
-class Cards {
+class Card {
     constructor(suit, value) {
         this.suit = suit;
         this.value = value;
@@ -37,9 +37,6 @@ class Cards {
     // TODO: 1 or 11 if ace
     getValueNum() { }
 }
-class Deck {
-    shuffleDeck() { }
-}
-let card = new Cards(Suits.Heart, Values.Ace);
+let card = new Card(Suits.Heart, Values.Ace);
 console.log(card.getSuit());
 console.log(card.getValueName());

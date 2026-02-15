@@ -21,7 +21,7 @@ enum Values {
     King = "king",
 }
 
-class Cards {
+class Card {
 	
 	constructor(private readonly suit: Suits, private readonly value: Values) {}
 	
@@ -37,11 +37,6 @@ class Cards {
     getValueNum() {}
 }
 
-class Deck {
-
-    shuffleDeck() {}
-}
-
-let card = new Cards(Suits.Heart, Values.Ace);
+let card = new Card(Suits.Heart, Values.Ace);
 console.log(card.getSuit());
 console.log(card.getValueName());
