@@ -11,8 +11,6 @@ export class TUI {
         console.log(content);
     }
 
-	printDeck() {}
-
 	printWin() {
         const input_file_path: string = 'tui/win.txt';
         const content: string = fs.readFileSync(input_file_path, 'utf-8');

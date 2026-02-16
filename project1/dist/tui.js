@@ -44,7 +44,6 @@ class TUI {
         const content = fs.readFileSync(input_file_path, 'utf-8');
         console.log(content);
     }
-    printDeck() { }
     printWin() {
         const input_file_path = 'tui/win.txt';
         const content = fs.readFileSync(input_file_path, 'utf-8');

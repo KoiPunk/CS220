@@ -1,5 +1,6 @@
 import * as readline from 'readline-sync';
 import { TUI } from './tui';
+import { Deck } from './deck';
 
 enum GameState {
     Menu = "menu",
@@ -12,66 +13,95 @@ class Game {
 
     private tui: TUI = new TUI;
     private game_state: GameState = GameState.Menu;
+    private deck: Deck = new Deck;
 
     /* 
-    call appropriate methods based on your game state 
+    Print tui based on your game state 
     */
-    checkGameState() {
+    printGame() {
         console.log('');
-        // CLEAN: this can be tidied up to look not ugly
-        if (this.game_state == GameState.Menu)
+
+        if (this.game_state === GameState.Menu)
             this.tui.printMenu();
-        else if (this.game_state == GameState.Playing)
-            this.tui.printDeck();
-        else if (this.game_state == GameState.Win)
+        else if (this.game_state === GameState.Playing)
+            this.deck.printDeck();
+        else if (this.game_state === GameState.Win)
             this.tui.printWin();
-        else if (this.game_state == GameState.Lost)
+        else if (this.game_state === GameState.Lost)
             this.tui.printLost();
         else
             console.log("Invalid game state. You're not supposed to be here.")
     }
     
-    mainMenu() {
+    /*
+    the player hits!
+    */
+    hit() {
+        this.deck.hit("player");
     }
 
-    startGame() {}
+    /*
+    the player stays!
+    */
+    stay() {
+        this.deck.stay("player");
+    }
 
-    continueGame() {}
+    checkWin() {}
 
-    closeGame() {}
+    checkLost() {}
 
-    /* used to debug only */
-    inputGameState(input: string) {
-        if (input === "m") {
-            this.game_state = GameState.Menu;
-            this.checkGameState();
-        }
-        else if (input === 'w') {
-            this.game_state = GameState.Win;
-            this.checkGameState();
-        }
-        else if (input === 'l') {
-            this.game_state = GameState.Lost;
-            this.checkGameState();
-        }
-        else if (input === 'q') {
-            console.log("");
-            this.tui.printQuit();
-        }
-        else
-            console.log("\nInvalid game state. You're not supposed to be here.\n")
+    startGame() {
+        this.game_state = GameState.Playing;
+        // TODO: refresh deck when below 30 cards
+    }
+
+    closeGame() {
+        console.log("");
+        this.tui.printQuit();
+    }
+
+    getState() {
+        return this.game_state;
     }
 }
 
 
-
 const game = new Game();
 
-// gameplay loop
+// gameplay loop: 
+// loop start by printing the current TUI
+// then it ask for the appropriate input based on your game's state
 while (true) {
-    const game_state = readline.question( "Choose a screen: (m)enu, (w)in, (l)ost, (q)uit\n" );
-    game.inputGameState(game_state);
-    
-    if (game_state == "q")
-        break;
+    game.printGame();
+
+    // player is in menu
+    if (game.getState() === GameState.Menu) {
+        const game_state = readline.question("");
+        
+        if (game_state === "q") {
+            game.closeGame();
+            break;
+        }
+        else if (game_state === "p") {
+            game.startGame();
+        }
+    }
+    // game's goin' on!
+    else if (game.getState() === GameState.Playing) {
+        const input = readline.question("");
+
+        if (input === "h") {
+            game.hit();
+        }
+        else if (input === "s") {
+            game.stay();
+        }
+        else {
+            console.log("Invalid respond. Go hit something or stay where you are.");
+        }
+
+        game.checkWin();
+        game.checkLost();
+    }
 }
