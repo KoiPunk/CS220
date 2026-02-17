@@ -1,3 +1,7 @@
+// https://github.com/KoiPunk/CS220
+// this is the file that you run for the game
+// by Koi Li, for spring, CS220
+
 import * as readline from 'readline-sync';
 import { TUI } from './tui';
 import { Deck } from './deck';
