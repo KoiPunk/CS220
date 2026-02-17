@@ -1,4 +1,9 @@
 import * as fs from 'fs';
+// I used a package/library for the shuffling, install with:
+// npm install @types/shuffle-array
+// npm install shuffle-array
+// hopefully this is allowed
+import shuffle from 'shuffle-array';
 import { Card, Suits, Values, Visibility } from './card';
 
 export class Deck {
@@ -9,24 +14,31 @@ export class Deck {
 
     constructor() {
         this.newDeck();
-        // TODO: double check to make sure this make sense logically and shouldnt be in game.ts instead
-        this.newHand();
     }
 
     /* 
     Reset deck of French cards, all hidden
     */
     newDeck() {
+        // clear deck first
+        this.deck = [];
+        
         // JavaScript function that I yoinked from its documentation
         for (const suit of Object.values(Suits)) 
             for (const value of Object.values(Values))
                 this.deck.push(new Card(suit, value, Visibility.Hidden));
+        
+        shuffle(this.deck);
     }
 
     /* 
     initialize hands: give dealer and player two cards each, make dealer's second card hidden
     */
     newHand(): void {
+        // clear hands first
+        this.dealer_hand = [];
+        this.player_hand = [];
+        
         for (let i = 0; i < 2; i++) {
             this.addCard(this.dealer_hand);
             this.addCard(this.player_hand);
@@ -51,43 +63,67 @@ export class Deck {
         hand.push(card);
     }
 
+    /*
+    shuffle deck using a package function that uses the Fisher-Yates algorithmn
+    */
     shuffleDeck() {
-        // TODO: make function
+        shuffle(this.deck);
     }
     
     hit(id: string): void {
         // don't print game here, only updates required
-        // TODO:
-        if (id === "player")
+        if (id === "p")
             this.addCard(this.player_hand);
-        else if (id === "dealer")
+        else if (id === "d")
             this.addCard(this.dealer_hand);
-
-        console.log(id + " hit");
-
     }
 
-    stay(id: string): void {
-        // don't print game here, only updates required
-        // TODO:
-        console.log(id + " stayed");
+    showAllCard(): void {
+        if (this.dealer_hand[1].getVisibility() === Visibility.Hidden)
+            this.dealer_hand[1].changeVisibility();
     }
 
+    /* 
+    return sum of all numeric value of player/dealer's cards EXCEPT aces.
+    used to determine the value of ace.
+    something's really gross about having three whole functions to get scores but this is just so much easier than actually making good code
+    */
+    getNonAceScore(id: string): number {
+        let result: number = 0;
+        let hand: Card[];
+
+        if (id === "p")
+            hand = this.player_hand;
+        else // not a great idea to use else, since then "s" will be treated like "d". But no one is going to do that 
+            hand = this.dealer_hand;
+
+        for (let i = 0; i < hand.length; i++) {
+            // do not include card if it is an ace
+            if (hand[i].getValueName() !== Values.Ace)
+                result += hand[i].getValueNum();
+        }
+        return result;
+    }
+    
     /*
-    return the sum of ALL numeric value of player/dealer's cards.
+    return the sum of ALL numeric value of player/dealer's cards by adding ace values to getNonAceScore().
     this is the score that's actually used to check for winning/losing.
     value of ace is added accordingly
     */
-    getScore(hand: Card[]): number {
-        let result: number = 0;
+    getScore(id: string): number {
+        // get score without ace
+        let result: number = this.getNonAceScore(id);
+        let hand: Card[];
+
+        if (id === "p")
+            hand = this.player_hand;
+        else // not a great idea to use else, since then "s" will be treated like "d". But no one is going to do that 
+            hand = this.dealer_hand;
 
         for (let i = 0; i < hand.length; i++) {
-            // current card iteration is an ace
-            // TODO: update situation if it is ace
+            // current card iteration is an ace. Add value to result
             if (hand[i].getValueName() === Values.Ace)
-                result += this.getAce();
-            else
-                result += hand[i].getValueNum();
+                result += this.getAce(id, hand[i]);
         }
         return result;
     }
@@ -96,12 +132,17 @@ export class Deck {
     return getScore(), remove hidden cards' value.
     this is the "score" that's printed
     */
-    getShownScore(hand: Card[]): number {
-        let result: number = this.getScore(hand);
+    getShownScore(id: string): number {
+        let result: number = this.getScore(id);
+        let hand: Card[];
+
+        if (id === "p")
+            hand = this.player_hand;
+        else
+            hand = this.dealer_hand;
 
         for (let i = 0; i < hand.length; i++) {
             if (hand[i].getVisibility() === Visibility.Hidden)
-                // TODO: fix bug of this not removing ace's value
                 result -= hand[i].getValueNum();
         }
 
@@ -109,11 +150,17 @@ export class Deck {
     }
 
     /* 
-    return value of ace depending on player/dealer score
+    return value of ace depending on player/dealer score.
+    also set the value of the card
     */
-    getAce(): number {
+    getAce(id: string, card:Card): number {
         // TODO: update value of ace
-        return 11
+        if (this.getNonAceScore(id) + 11 > 21) {
+            card.setAce(1);
+            return 1;
+        }
+        card.setAce(11);
+        return 11;
     }
 
     /* 
@@ -123,7 +170,7 @@ export class Deck {
     it'll be much cleaner too.
     this will swap the premade variables I shoved in the file with actual value
     */
-    printDeck() {
+    printDeck(): void {
         let content: string = this.updateDeckContent();
         
         // update number of cards left in deck 
@@ -136,6 +183,10 @@ export class Deck {
         console.log(content);
     }
 
+    getDeckSize(): number {
+        return this.deck.length;
+    }
+
     // get txt file of deck TUI and dynamically add ASCII art of cards to the content.
     // this could've been in printDeck(), 
     // but I start zooming out when a block of code gets too long so I'm breaking it into functions
@@ -146,6 +197,17 @@ export class Deck {
         
         // update dealer's cards
         for (let i = 0; i < this.dealer_hand.length; i++) {
+            // print empty card if hidden
+            if (this.dealer_hand[i].getVisibility() === Visibility.Hidden) {
+                content = content.replace("^", " +-----+$");
+                content = content.replace("^", " |?    |$");
+                content = content.replace("^", " |  ?  |$");
+                content = content.replace("^", " |    ?|$");
+                content = content.replace("^", " +-----+$");
+                content = content.replace(/\$/g, "^"); // trust the process
+                continue;
+            }
+
             // place card templates
             content = content.replace("^", " +-----+$");
             content = content.replace("^", " |%d_v" + (i+1) + "   |$");
@@ -170,7 +232,11 @@ export class Deck {
             }
 
             // update dealer "score" (without the hidden card's value)
-            content = content.replace("%d_score", this.getShownScore(this.dealer_hand).toString());
+            // fix formatting for "single values"
+            if (this.getShownScore("d") < 10) 
+                content = content.replace("%d_score", this.getShownScore("d").toString() + " ");
+            else
+                content = content.replace("%d_score", this.getShownScore("d").toString());
         }
         
         // update player's cards
@@ -199,7 +265,11 @@ export class Deck {
             }
 
             // update player "score" (without the hidden card's value)
-            content = content.replace("%p_score", this.getShownScore(this.player_hand).toString());
+            // fix formatting for "single values"
+            if (this.getShownScore("p") < 10) 
+                content = content.replace("%p_score", this.getShownScore("p").toString() + " ");
+            else
+                content = content.replace("%p_score", this.getShownScore("p").toString());
         }
 
         // remove all the temporary "^"

@@ -54,6 +54,11 @@ class TUI {
         const content = fs.readFileSync(input_file_path, 'utf-8');
         console.log(content);
     }
+    printPush() {
+        const input_file_path = 'tui/push.txt';
+        const content = fs.readFileSync(input_file_path, 'utf-8');
+        console.log(content);
+    }
     printQuit() {
         const input_file_path = 'tui/quit.txt';
         const content = fs.readFileSync(input_file_path, 'utf-8');

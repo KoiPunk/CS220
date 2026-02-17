@@ -35,6 +35,7 @@ class Card {
         this.suit = suit;
         this.value = value;
         this.visibility = visibility;
+        this.numericValue = 0;
     }
     getSuit() {
         return this.suit;
@@ -54,29 +55,43 @@ class Card {
         else
             this.visibility = Visibility.Hidden;
     }
-    // return the numeric value of the card (1, 2, 11...)
+    /*
+    called in deck.ts with the number this ace card should be.
+    */
+    setAce(value) {
+        if (this.value !== Values.Ace) {
+            console.log("Why are you setting an non-ace card with ace values?!??!");
+            return;
+        }
+        // also not a good idea to just let people set value as whatever (not 11 or 1)
+        this.numericValue = value;
+    }
+    // set numeric value of the card (1, 2, 11...) and return it
     getValueNum() {
         // ace is not in here, since its value is determined in deck.ts's getAce()
         if (this.value === Values.Two)
-            return 2;
+            this.numericValue = 2;
         else if (this.value === Values.Three)
-            return 3;
+            this.numericValue = 3;
         else if (this.value === Values.Four)
-            return 4;
+            this.numericValue = 4;
         else if (this.value === Values.Five)
-            return 5;
+            this.numericValue = 5;
         else if (this.value === Values.Six)
-            return 6;
+            this.numericValue = 6;
         else if (this.value === Values.Seven)
-            return 7;
+            this.numericValue = 7;
         else if (this.value === Values.Eight)
-            return 8;
+            this.numericValue = 8;
         else if (this.value === Values.Nine)
-            return 9;
+            this.numericValue = 9;
         else if ((this.value === Values.Ten) || (this.value === Values.Jack) || (this.value === Values.Queen) || (this.value === Values.King)) // ugly but works
-            return 10;
-        else
-            return 10000; // shouldn't be used.
+            this.numericValue = 10;
+        // this card should've never existed!?
+        else if (this.value !== Values.Ace)
+            // else
+            this.numericValue = 10000;
+        return this.numericValue;
     }
 }
 exports.Card = Card;

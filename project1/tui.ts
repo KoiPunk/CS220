@@ -23,6 +23,12 @@ export class TUI {
         console.log(content);
     }
 
+    printPush() {
+        const input_file_path: string = 'tui/push.txt';
+        const content: string = fs.readFileSync(input_file_path, 'utf-8');
+        console.log(content);
+    }
+
     printQuit() {
         const input_file_path: string = 'tui/quit.txt';
         const content: string = fs.readFileSync(input_file_path, 'utf-8');

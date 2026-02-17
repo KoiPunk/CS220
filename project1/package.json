@@ -5,6 +5,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "readline-sync": "^1.4.10"
+    "@types/shuffle-array": "^1.0.5",
+    "readline-sync": "^1.4.10",
+    "shuffle-array": "^1.0.1"
   }
 }
