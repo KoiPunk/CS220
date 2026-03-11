@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@types/readline-sync": "^1.4.4",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/shuffle-array": "^1.0.5",
+    "readline-sync": "^1.4.10",
+    "shuffle-array": "^1.0.1"
+  }
+}
