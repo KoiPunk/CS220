@@ -1,4 +1,5 @@
-// class is missing the "simluateGame" method. 
+// https://github.com/KoiPunk/CS220/tree/main/project2
+// by Koi Li for CS220
 
 /** Represents a casino game. */
 abstract class Game {
