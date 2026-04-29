@@ -1,4 +1,6 @@
-/* First file to run when app starts 
+/* 
+ * https://github.com/KoiPunk/CS220/tree/main/project4
+ * First file to run when app starts 
  * Grab HTML page and render the main component, App
  */
 
